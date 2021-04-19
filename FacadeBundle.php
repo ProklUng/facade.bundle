@@ -2,7 +2,9 @@
 
 namespace Prokl\FacadeBundle;
 
+use Prokl\FacadeBundle\DependencyInjection\CompilerPass\AddFacadePass;
 use Prokl\FacadeBundle\DependencyInjection\FacadeExtension;
+use Prokl\FacadeBundle\Services\AbstractFacade;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
