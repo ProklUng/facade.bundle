@@ -264,12 +264,6 @@ abstract class AbstractFacade
 
         $facadedService = static::$app->get(static::class);
 
-        if (!method_exists($facadedService, $method)) {
-            throw new RuntimeException(
-                sprintf('Метод %s не найден.', $method)
-            );
-        }
-
         // Класс сервиса, к которому привязан фасад.
         $idDestinationService = static::getFacadeAccessor();
 
