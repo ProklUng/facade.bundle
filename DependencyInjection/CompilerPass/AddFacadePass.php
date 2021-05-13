@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * Class AddFacadePass
  * @package Local\Bundles\FacadeBundle\DependencyInjection\CompilerPass
+ *
  */
 final class AddFacadePass implements CompilerPassInterface
 {
@@ -24,6 +25,10 @@ final class AddFacadePass implements CompilerPassInterface
     {
         $facades = [];
 
+        /**
+         * @var string $id
+         * @var mixed  $attr
+         */
         foreach ($container->findTaggedServiceIds('laravel.facade') as $id => $attr) {
             $class = $container->getDefinition($id)->getClass();
             $class = $class ?? $id;
@@ -34,6 +39,7 @@ final class AddFacadePass implements CompilerPassInterface
 
             $r = new ReflectionMethod($class, 'getFacadeAccessor');
             $r->setAccessible(true);
+            /** @psalm-suppress MixedAssignment */
             $ref = $r->invoke(null);
 
             if (!\is_string($ref)) {
@@ -46,6 +52,7 @@ final class AddFacadePass implements CompilerPassInterface
             $facades[$id] = new Reference($ref);
         }
 
+        /** @psalm-suppress ImplicitToStringCast */
         $container->setAlias('laravel.facade.container', new Alias(ServiceLocatorTagPass::register($container, $facades), true));
     }
 }

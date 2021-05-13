@@ -55,6 +55,10 @@ abstract class AbstractFacade
      */
     public static function instanceService()
     {
+        if (static::$app === null) {
+            throw new RuntimeException('Facades container not initialized.');
+        }
+
         $accessor = static::class;
 
         // Чтобы поддерживалось моканье.
@@ -63,6 +67,7 @@ abstract class AbstractFacade
         }
 
         try {
+            /** @var object $service */
             $service = static::$app->get($accessor);
         } catch (Exception $e) {
             throw new RuntimeException(
@@ -91,6 +96,7 @@ abstract class AbstractFacade
      */
     public static function swap(string $functionName, $param = null): void
     {
+        /** @psalm-suppress MixedArrayAssignment */
         static::$resolvedInstance[static::getFacadeAccessor()][$functionName] = $param;
     }
 
@@ -121,8 +127,7 @@ abstract class AbstractFacade
     {
         if (!static::isMock()) {
             $class = static::getMockableClass();
-
-            return tap($class ? Mockery::spy($class) : Mockery::spy(), function ($spy) {
+            return tap($class ? Mockery::spy($class) : Mockery::spy(), function (string $spy) {
                 static::swap($spy);
             });
         }
@@ -182,6 +187,7 @@ abstract class AbstractFacade
      */
     protected static function createFreshMockInstance(): MockInterface
     {
+        /** @psalm-suppress MissingClosureParamType */
         return tap(static::createMock(), static function ($mock) {
             static::swapService($mock);
 
@@ -208,7 +214,12 @@ abstract class AbstractFacade
      */
     protected static function getMockableClass(): string
     {
-        if ($root = self::$app->get(static::class)) {
+        if (static::$app === null) {
+            throw new RuntimeException('Facades container not initialized.');
+        }
+
+        if ($root = static::$app->get(static::class)) {
+            /** @var object $root */
             return get_class($root);
         }
 
@@ -224,6 +235,10 @@ abstract class AbstractFacade
      */
     public static function __getStatic(string $variable)
     {
+        if (static::$app === null) {
+            throw new RuntimeException('Facades container not initialized.');
+        }
+
         // Название сервиса, к которому привязан фасад.
         $accessor = static::class;
 
